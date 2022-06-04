@@ -52,7 +52,9 @@ export default {
       const { card, id } = JSON.parse(evt.dataTransfer.getData("card"));
       this.dragged(card, this.decks, id, this.id);
     },
+    // change the isDown property of the card
     toggle(e, card) {
+      if (this.decks.at(-1) === card) return;
       return (card.isDown = !card.isDown);
     },
   },

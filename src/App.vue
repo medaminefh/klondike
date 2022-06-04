@@ -16,6 +16,16 @@ export default {
     };
   },
   methods: {
+    change(e, card) {
+      console.log(this.leftDeck.length);
+      if (this.leftDeck.length !== 0) {
+        this.leftDeck = this.leftDeck.filter((c) => c !== card);
+        this.rightDeck.push({ ...card, isDown: false });
+        return;
+      }
+      this.leftDeck = this.rightDeck.map((c) => ({ ...c, isDown: true }));
+      this.rightDeck = [];
+    },
     dragged(cardDragged, droppedDeck, draggedDeckId, droppedDeckId) {
       // If the dragged card is dropped in the same Deck, don't do anything
       if (droppedDeckId === draggedDeckId) return;
@@ -94,9 +104,9 @@ export default {
           <div
             v-for="(card, index) in leftDeck"
             :key="index"
-            @dragstart="startDrag($event, card)"
+            @click="change($event, card)"
             class="flip-card rounded-sm overflow-hidden absolute inset-x-0 bottom-0"
-            :draggable="!card.isDown ? true : false"
+            draggable="false"
           >
             <div class="flip-card-inner">
               <div
@@ -110,7 +120,26 @@ export default {
             </div>
           </div>
         </div>
-        <div @dragover.prevent @dragenter.prevent class="card"></div>
+        <div
+          v-if="rightDeck"
+          @dragover.prevent
+          @dragenter.prevent
+          class="card relative"
+        >
+          <div
+            v-for="(card, index) in rightDeck"
+            @click="change"
+            :key="index"
+            class="flip-card rounded-sm overflow-hidden absolute inset-x-0 bottom-0"
+            draggable="true"
+          >
+            <div class="flip-card-inner">
+              <div class="flip-card-front card" :class="[card.suit]">
+                {{ card.rank }} {{ card.symbol }}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="flex w-1/3 justify-between">
         <div
