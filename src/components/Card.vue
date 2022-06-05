@@ -46,10 +46,14 @@ export default {
     startDrag(evt, card) {
       evt.dataTransfer.dropEffect = "move";
       evt.dataTransfer.effectAllowed = "move";
-      evt.dataTransfer.setData("card", JSON.stringify({ card, id: this.id }));
+      evt.dataTransfer.setData(
+        "card",
+        JSON.stringify({ card, id: this.id, from: "fromInitialDeck" })
+      );
     },
     onDrop(evt) {
       const { card, id } = JSON.parse(evt.dataTransfer.getData("card"));
+      console.log(card, this.id);
       this.dragged(card, this.decks, id, this.id);
     },
     // change the isDown property of the card

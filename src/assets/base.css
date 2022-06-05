@@ -96,10 +96,6 @@ body {
   color: rgba(202, 17, 17, 0.856);
 }
 
-/* .card.down {
-  transform: rotateY(180deg);
-}
- */
 .card.diamond:after {
   content: "♦";
   font-size: 100px;
@@ -143,7 +139,6 @@ body {
   width: 100%;
   height: 100%;
   transition: transform 0.8s;
-  /* transform-style: preserve-3d; */
 }
 
 .flip-card {
@@ -158,11 +153,6 @@ body {
   margin-top: 0;
 }
 
-/* Do an horizontal flip when you move the mouse over the flip card container */
-/* .flip-card.down .flip-card-inner {
-  transform: rotateY(180deg);
-}
- */
 /* Position the front and back side */
 .flip-card-front,
 .flip-card-back {
@@ -171,8 +161,6 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  /* -webkit-backface-visibility: hidden; */ /* Safari */
-  /* backface-visibility: hidden; */
 }
 
 /* Style the back side */
@@ -181,5 +169,4 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  /* transform: rotateY(180deg); */
 }

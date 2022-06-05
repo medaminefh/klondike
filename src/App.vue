@@ -1,5 +1,11 @@
 <script>
-import { decks, shuffle, InitialDecks, processRank } from "./assets/utils";
+import {
+  decks,
+  shuffle,
+  InitialDecks,
+  processRank,
+  isDroppable,
+} from "./assets/utils";
 import Card from "./components/Card.vue";
 import "./index.css";
 import "./assets/base.css";
@@ -17,7 +23,6 @@ export default {
   },
   methods: {
     change(e, card) {
-      console.log(this.leftDeck.length);
       if (this.leftDeck.length !== 0) {
         this.leftDeck = this.leftDeck.filter((c) => c !== card);
         this.rightDeck.push({ ...card, isDown: false });
@@ -26,49 +31,96 @@ export default {
       this.leftDeck = this.rightDeck.map((c) => ({ ...c, isDown: true }));
       this.rightDeck = [];
     },
-    dragged(cardDragged, droppedDeck, draggedDeckId, droppedDeckId) {
-      // If the dragged card is dropped in the same Deck, don't do anything
-      if (droppedDeckId === draggedDeckId) return;
+    onDrag(evt, card, from) {
+      console.log(evt, card, from);
+      evt.dataTransfer.dropEffect = "move";
+      evt.dataTransfer.effectAllowed = "move";
+      evt.dataTransfer.setData("card", JSON.stringify({ card, from }));
+    },
+    onDrop(evt, cardIndex, to = "foundation") {
+      const { card, from } = JSON.parse(evt.dataTransfer.getData("card"));
 
-      // If the Deck is Empty
-      if (!droppedDeck.length) {
-        this.initialDecks[draggedDeckId] = this.initialDecks[
-          draggedDeckId
-        ].filter((card) => {
+      if (from === "fromInitialDeck" && to === "foundation") {
+        const { id } = JSON.parse(evt.dataTransfer.getData("card"));
+        //console.log(card, cardIndex);
+        this.foundation[cardIndex] = card;
+
+        this.initialDecks[id] = this.initialDecks[id].filter((c) => {
           if (
-            card.color == cardDragged.color &&
-            card.rank == cardDragged.rank &&
-            card.symbol == cardDragged.symbol
+            c.color == card.color &&
+            c.rank == card.rank &&
+            c.symbol == card.symbol
           )
             return false;
           return true;
         });
-
-        // Adding the Card to the Dropped Deck
-        this.initialDecks[droppedDeckId] = [cardDragged];
-      }
-
-      if (
-        processRank(this.initialDecks[droppedDeckId].at(-1).rank) -
-          processRank(cardDragged.rank) ==
-          1 &&
-        this.initialDecks[droppedDeckId].at(-1).color !== cardDragged.color
-      ) {
-        // Deleting the dragged card from the deck #TODO
-        this.initialDecks[draggedDeckId] = this.initialDecks[
-          draggedDeckId
-        ].filter((card) => {
+      } else if (from === "fromLeftDeck" && to === "foundation") {
+        this.foundation[cardIndex] = card;
+        this.rightDeck = this.rightDeck.filter((c) => {
           if (
-            card.color == cardDragged.color &&
-            card.rank == cardDragged.rank &&
-            card.symbol == cardDragged.symbol
+            c.color == card.color &&
+            c.rank == card.rank &&
+            c.symbol == card.symbol
           )
             return false;
           return true;
         });
+      } else return;
+    },
+    dragged(
+      cardDragged,
+      droppedDeck = "",
+      draggedDeckId = "",
+      droppedDeckId = "",
+      from = false
+    ) {
+      if (from === "fromLeftDeck") {
+        console.log("FromLeftDeck");
+      } else {
+        console.log("From Initial Deck");
+        // If the dragged card is dropped in the same Deck, don't do anything
+        if (droppedDeckId === draggedDeckId) return;
 
-        // Adding the Card to the Dropped Deck
-        this.initialDecks[droppedDeckId] = [...droppedDeck, cardDragged];
+        // If the Deck is Empty
+        if (!droppedDeck.length) {
+          this.initialDecks[draggedDeckId] = this.initialDecks[
+            draggedDeckId
+          ].filter((card) => {
+            if (
+              card.color == cardDragged.color &&
+              card.rank == cardDragged.rank &&
+              card.symbol == cardDragged.symbol
+            )
+              return false;
+            return true;
+          });
+
+          // Adding the Card to the Dropped Deck
+          this.initialDecks[droppedDeckId] = [cardDragged];
+        }
+
+        if (
+          processRank(this.initialDecks[droppedDeckId].at(-1).rank) -
+            processRank(cardDragged.rank) ==
+            1 &&
+          this.initialDecks[droppedDeckId].at(-1).color !== cardDragged.color
+        ) {
+          // Deleting the dragged card from the deck #TODO
+          this.initialDecks[draggedDeckId] = this.initialDecks[
+            draggedDeckId
+          ].filter((card) => {
+            if (
+              card.color == cardDragged.color &&
+              card.rank == cardDragged.rank &&
+              card.symbol == cardDragged.symbol
+            )
+              return false;
+            return true;
+          });
+
+          // Adding the Card to the Dropped Deck
+          this.initialDecks[droppedDeckId] = [...droppedDeck, cardDragged];
+        }
       }
     },
   },
@@ -104,6 +156,7 @@ export default {
           <div
             v-for="(card, index) in leftDeck"
             :key="index"
+            @dragstart="onDrag($event, card, 'fromLeftDeck')"
             @click="change($event, card)"
             class="flip-card rounded-sm overflow-hidden absolute inset-x-0 bottom-0"
             draggable="false"
@@ -128,6 +181,7 @@ export default {
         >
           <div
             v-for="(card, index) in rightDeck"
+            @dragstart="onDrag($event, card, 'fromLeftDeck')"
             @click="change"
             :key="index"
             class="flip-card rounded-sm overflow-hidden absolute inset-x-0 bottom-0"
@@ -145,10 +199,22 @@ export default {
         <div
           @dragover.prevent
           @dragenter.prevent
-          v-for="(_, index) in [1, 2, 3, 4]"
+          v-for="(card, index) in foundation"
           :key="index"
           class="card"
-        ></div>
+          @drop="onDrop($event, index, 'foundation')"
+        >
+          <div
+            class="flip-card rounded-sm overflow-hidden absolute inset-x-0 bottom-0"
+            draggable="false"
+          >
+            <div class="flip-card-inner">
+              <div class="flip-card-front card" :class="[card.suit]">
+                {{ card.rank }} {{ card.symbol }}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="w-75 min-h-75 grid grid-rows-7 grid-flow-col mx-40">

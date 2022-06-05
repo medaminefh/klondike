@@ -87,3 +87,35 @@ export const processRank = (rank: string) => {
     return parseInt(rank);
   }
 };
+
+export const isDroppable = (
+  sameSuit = false,
+  cardDragged: DeckType,
+  dropTarget: DeckType | null = null
+) => {
+  if (!sameSuit && dropTarget) {
+    if (
+      processRank(cardDragged.rank) - processRank(dropTarget.rank) === 1 &&
+      cardDragged.color !== dropTarget.color
+    ) {
+      return true;
+    }
+    return false;
+  } else if (sameSuit && !dropTarget) {
+    return processRank(cardDragged.rank) === 1;
+  } else if (sameSuit && dropTarget) {
+    return (
+      processRank(cardDragged.rank) - processRank(dropTarget.rank) === 1 &&
+      cardDragged.suit === dropTarget.suit
+    );
+  } else {
+    if (
+      processRank(dropTarget?.rank) - processRank(cardDragged.rank) === 1 &&
+      cardDragged.color !== dropTarget?.color &&
+      cardDragged.suit !== dropTarget?.suit
+    ) {
+      return true;
+    }
+    return false;
+  }
+};
