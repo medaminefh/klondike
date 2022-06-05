@@ -16,14 +16,16 @@ export default {
     };
   },
   methods: {
-    change(e, card) {
-      if (this.leftDeck.length !== 0) {
+    change(e, card, left = true) {
+      if (left && this.leftDeck.length !== 0) {
         this.leftDeck = this.leftDeck.filter((c) => c !== card);
         this.rightDeck.push({ ...card, isDown: false });
         return;
+      } else if (!left && this.leftDeck.length !== 0) return;
+      else {
+        this.leftDeck = this.rightDeck.map((c) => ({ ...c, isDown: true }));
+        this.rightDeck = [];
       }
-      this.leftDeck = this.rightDeck.map((c) => ({ ...c, isDown: true }));
-      this.rightDeck = [];
     },
     onDrag(evt, card, from) {
       evt.dataTransfer.dropEffect = "move";
@@ -50,16 +52,18 @@ export default {
           });
         }
       } else if (from === "fromLeftDeck" && to === "foundation") {
-        this.foundation[cardIndex] = card;
-        this.rightDeck = this.rightDeck.filter((c) => {
-          if (
-            c.color == card.color &&
-            c.rank == card.rank &&
-            c.symbol == card.symbol
-          )
-            return false;
-          return true;
-        });
+        if (isDroppable(true, card, this.foundation[cardIndex])) {
+          this.foundation[cardIndex] = card;
+          this.rightDeck = this.rightDeck.filter((c) => {
+            if (
+              c.color == card.color &&
+              c.rank == card.rank &&
+              c.symbol == card.symbol
+            )
+              return false;
+            return true;
+          });
+        }
       } else if (from === "fromLeftDeck" && to === "initialDeck") {
         const { id } = JSON.parse(evt.dataTransfer.getData("card"));
         if (isDroppable(false, card, this.initialDecks[id])) {
@@ -104,6 +108,49 @@ export default {
             cardDragged,
           ];
         }
+      } else if (from === "fromInitialDeck" && droppedDeck.length) {
+        if (isDroppable(true, cardDragged, this.foundation[droppedDeckId])) {
+          this.initialDecks[draggedDeckId] = this.initialDecks[
+            draggedDeckId
+          ].filter((card) => {
+            if (
+              card.color == cardDragged.color &&
+              card.rank == cardDragged.rank &&
+              card.symbol == cardDragged.symbol
+            )
+              return false;
+            return true;
+          });
+
+          // Adding the Card to the Dropped Deck
+          this.foundation[droppedDeckId] = cardDragged;
+        }
+      } else if ((!from, droppedDeck.length)) {
+        if (
+          isDroppable(
+            false,
+            cardDragged,
+            this.initialDecks[droppedDeckId].at(-1)
+          )
+        ) {
+          this.initialDecks[draggedDeckId] = this.initialDecks[
+            draggedDeckId
+          ].filter((card) => {
+            if (
+              card.color == cardDragged.color &&
+              card.rank == cardDragged.rank &&
+              card.symbol == cardDragged.symbol
+            )
+              return false;
+            return true;
+          });
+
+          // Adding the Card to the Dropped Deck
+          this.initialDecks[droppedDeckId] = [
+            ...this.initialDecks[droppedDeckId],
+            cardDragged,
+          ];
+        }
       } else {
         // If the dragged card is dropped in the same Deck, don't do anything
         if (droppedDeckId === draggedDeckId) return;
@@ -126,31 +173,40 @@ export default {
             // Adding the Card to the Dropped Deck
             this.initialDecks[droppedDeckId] = [cardDragged];
           }
-        }
-
-        if (
-          isDroppable(
-            false,
-            cardDragged,
-            this.initialDecks[droppedDeckId].at(-1)
-          )
-        ) {
-          // Deleting the dragged card from the deck #TODO
-          this.initialDecks[draggedDeckId] = this.initialDecks[
-            draggedDeckId
-          ].filter((card) => {
-            if (
-              card.color == cardDragged.color &&
-              card.rank == cardDragged.rank &&
-              card.symbol == cardDragged.symbol
+        } else {
+          if (
+            isDroppable(
+              false,
+              cardDragged,
+              this.initialDecks[droppedDeckId].at(-1)
             )
-              return false;
-            return true;
-          });
+          ) {
+            // Deleting the dragged card from the deck #TODO
+            this.initialDecks[draggedDeckId] = this.initialDecks[
+              draggedDeckId
+            ].filter((card) => {
+              if (
+                card.color == cardDragged.color &&
+                card.rank == cardDragged.rank &&
+                card.symbol == cardDragged.symbol
+              )
+                return false;
+              return true;
+            });
 
-          // Adding the Card to the Dropped Deck
-          this.initialDecks[droppedDeckId] = [...droppedDeck, cardDragged];
+            // Adding the Card to the Dropped Deck
+            this.initialDecks[droppedDeckId] = [...droppedDeck, cardDragged];
+          }
         }
+      }
+    },
+  },
+
+  watch: {
+    foundation(array) {
+      const ranks = array.map((el) => el.rank);
+      if (ranks == ["K", "K", "K", "K"]) {
+        alert("Congrats, You win");
       }
     },
   },
@@ -170,15 +226,6 @@ export default {
       if (this.initialDecks[i].length)
         this.initialDecks[i].at(-1).isDown = false;
     }
-
-    // If All foundation cards are Kings you win
-    if (
-      this.foundation[0].suit === "K" &&
-      this.foundation[1].suit === "K" &&
-      this.foundation[2].suit === "K" &&
-      this.foundation[3].suit === "K"
-    )
-      alert("Yaaay! You WIN");
   },
 };
 </script>
@@ -216,7 +263,7 @@ export default {
           <div
             v-for="(card, index) in rightDeck"
             @dragstart="onDrag($event, card, 'fromLeftDeck')"
-            @click="change"
+            @click="change($event, card, false)"
             :key="index"
             class="flip-card rounded-sm overflow-hidden absolute inset-x-0 bottom-0"
             draggable="true"
