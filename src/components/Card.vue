@@ -53,7 +53,9 @@ export default {
     },
     onDrop(evt) {
       const { card, id } = JSON.parse(evt.dataTransfer.getData("card"));
-      console.log(card, this.id);
+      if (!id) {
+        return this.dragged(card, "", "", this.id, "leftDeck");
+      }
       this.dragged(card, this.decks, id, this.id);
     },
     // change the isDown property of the card

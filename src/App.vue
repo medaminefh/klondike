@@ -1,11 +1,5 @@
 <script>
-import {
-  decks,
-  shuffle,
-  InitialDecks,
-  processRank,
-  isDroppable,
-} from "./assets/utils";
+import { decks, shuffle, InitialDecks, isDroppable } from "./assets/utils";
 import Card from "./components/Card.vue";
 import "./index.css";
 import "./assets/base.css";
@@ -32,7 +26,6 @@ export default {
       this.rightDeck = [];
     },
     onDrag(evt, card, from) {
-      console.log(evt, card, from);
       evt.dataTransfer.dropEffect = "move";
       evt.dataTransfer.effectAllowed = "move";
       evt.dataTransfer.setData("card", JSON.stringify({ card, from }));
@@ -42,18 +35,20 @@ export default {
 
       if (from === "fromInitialDeck" && to === "foundation") {
         const { id } = JSON.parse(evt.dataTransfer.getData("card"));
-        //console.log(card, cardIndex);
-        this.foundation[cardIndex] = card;
+        const droppedTarget = this.foundation[cardIndex] ?? "";
+        if (isDroppable(true, card, droppedTarget)) {
+          this.foundation[cardIndex] = card;
 
-        this.initialDecks[id] = this.initialDecks[id].filter((c) => {
-          if (
-            c.color == card.color &&
-            c.rank == card.rank &&
-            c.symbol == card.symbol
-          )
-            return false;
-          return true;
-        });
+          this.initialDecks[id] = this.initialDecks[id].filter((c) => {
+            if (
+              c.color == card.color &&
+              c.rank == card.rank &&
+              c.symbol == card.symbol
+            )
+              return false;
+            return true;
+          });
+        }
       } else if (from === "fromLeftDeck" && to === "foundation") {
         this.foundation[cardIndex] = card;
         this.rightDeck = this.rightDeck.filter((c) => {
@@ -65,7 +60,23 @@ export default {
             return false;
           return true;
         });
-      } else return;
+      } else if (from === "fromLeftDeck" && to === "initialDeck") {
+        const { id } = JSON.parse(evt.dataTransfer.getData("card"));
+        if (isDroppable(false, card, this.initialDecks[id])) {
+          this.rightDeck = this.rightDeck.filter((c) => {
+            if (
+              c.color == card.color &&
+              c.rank == card.rank &&
+              c.symbol == card.symbol
+            )
+              return false;
+            return true;
+          });
+          this.initialDecks[id] = [...this.initialDecks[id], card];
+        }
+      } else {
+        return;
+      }
     },
     dragged(
       cardDragged,
@@ -74,36 +85,55 @@ export default {
       droppedDeckId = "",
       from = false
     ) {
-      if (from === "fromLeftDeck") {
-        console.log("FromLeftDeck");
+      if (from === "leftDeck") {
+        if (
+          isDroppable(
+            false,
+            cardDragged,
+            this.initialDecks[droppedDeckId].at(-1)
+          )
+        ) {
+          this.rightDeck = this.rightDeck.filter((c) => {
+            if (c.rank === cardDragged.rank && c.suit === cardDragged.suit)
+              return false;
+            return true;
+          });
+
+          this.initialDecks[droppedDeckId] = [
+            ...this.initialDecks[droppedDeckId],
+            cardDragged,
+          ];
+        }
       } else {
-        console.log("From Initial Deck");
         // If the dragged card is dropped in the same Deck, don't do anything
         if (droppedDeckId === draggedDeckId) return;
 
         // If the Deck is Empty
         if (!droppedDeck.length) {
-          this.initialDecks[draggedDeckId] = this.initialDecks[
-            draggedDeckId
-          ].filter((card) => {
-            if (
-              card.color == cardDragged.color &&
-              card.rank == cardDragged.rank &&
-              card.symbol == cardDragged.symbol
-            )
-              return false;
-            return true;
-          });
+          if (isDroppable(true, cardDragged, "")) {
+            this.initialDecks[draggedDeckId] = this.initialDecks[
+              draggedDeckId
+            ].filter((card) => {
+              if (
+                card.color == cardDragged.color &&
+                card.rank == cardDragged.rank &&
+                card.symbol == cardDragged.symbol
+              )
+                return false;
+              return true;
+            });
 
-          // Adding the Card to the Dropped Deck
-          this.initialDecks[droppedDeckId] = [cardDragged];
+            // Adding the Card to the Dropped Deck
+            this.initialDecks[droppedDeckId] = [cardDragged];
+          }
         }
 
         if (
-          processRank(this.initialDecks[droppedDeckId].at(-1).rank) -
-            processRank(cardDragged.rank) ==
-            1 &&
-          this.initialDecks[droppedDeckId].at(-1).color !== cardDragged.color
+          isDroppable(
+            false,
+            cardDragged,
+            this.initialDecks[droppedDeckId].at(-1)
+          )
         ) {
           // Deleting the dragged card from the deck #TODO
           this.initialDecks[draggedDeckId] = this.initialDecks[
@@ -140,6 +170,15 @@ export default {
       if (this.initialDecks[i].length)
         this.initialDecks[i].at(-1).isDown = false;
     }
+
+    // If All foundation cards are Kings you win
+    if (
+      this.foundation[0].suit === "K" &&
+      this.foundation[1].suit === "K" &&
+      this.foundation[2].suit === "K" &&
+      this.foundation[3].suit === "K"
+    )
+      alert("Yaaay! You WIN");
   },
 };
 </script>
@@ -173,12 +212,7 @@ export default {
             </div>
           </div>
         </div>
-        <div
-          v-if="rightDeck"
-          @dragover.prevent
-          @dragenter.prevent
-          class="card relative"
-        >
+        <div v-if="rightDeck" class="card relative">
           <div
             v-for="(card, index) in rightDeck"
             @dragstart="onDrag($event, card, 'fromLeftDeck')"
@@ -223,6 +257,7 @@ export default {
         :key="index"
         :decks="deck"
         :id="index"
+        :drop="onDrop"
         :dragged="dragged"
       />
     </div>

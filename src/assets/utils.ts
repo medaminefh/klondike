@@ -95,7 +95,7 @@ export const isDroppable = (
 ) => {
   if (!sameSuit && dropTarget) {
     if (
-      processRank(cardDragged.rank) - processRank(dropTarget.rank) === 1 &&
+      processRank(dropTarget.rank) - processRank(cardDragged.rank) === 1 &&
       cardDragged.color !== dropTarget.color
     ) {
       return true;
