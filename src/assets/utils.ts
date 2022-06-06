@@ -91,7 +91,7 @@ export const processRank = (rank: string) => {
 export const isDroppable = (
   sameSuit = false,
   cardDragged: DeckType,
-  dropTarget: DeckType | null = null
+  dropTarget: DeckType
 ) => {
   if (!sameSuit && dropTarget) {
     if (
