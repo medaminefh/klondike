@@ -32,38 +32,46 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "DecksComponent",
-  props: {
-    decks: Array,
-    id: String,
-    dragged: {
-      type: Function,
-    },
-  },
-  methods: {
-    startDrag(evt, card) {
-      evt.dataTransfer.dropEffect = "move";
-      evt.dataTransfer.effectAllowed = "move";
-      evt.dataTransfer.setData(
-        "card",
-        JSON.stringify({ card, id: this.id, from: "fromInitialDeck" })
-      );
-    },
-    onDrop(evt) {
-      const { card, id } = JSON.parse(evt.dataTransfer.getData("card"));
-      if (!id) {
-        return this.dragged(card, "", "", this.id, "leftDeck");
-      }
-      this.dragged(card, this.decks, id, this.id);
-    },
-    // change the isDown property of the card
-    toggle(e, card) {
-      if (this.decks.at(-1) === card) return;
-      return (card.isDown = !card.isDown);
-    },
-  },
+<script setup lang="ts">
+import type { DeckType } from "@/assets/utils";
+
+interface Props {
+  decks: DeckType[];
+  id: string;
+  dragged: any;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  decks: undefined,
+  id: undefined,
+  dragged: undefined,
+});
+
+const startDrag = (evt: DragEvent, card: DeckType) => {
+  if (evt && evt.dataTransfer) {
+    evt.dataTransfer.dropEffect = "move";
+    evt.dataTransfer.effectAllowed = "move";
+    evt.dataTransfer.setData(
+      "card",
+      JSON.stringify({ card, id: props.id, from: "fromInitialDeck" })
+    );
+  }
+};
+
+const onDrop = (evt: DragEvent) => {
+  if (evt && evt.dataTransfer) {
+    const { card, id } = JSON.parse(evt.dataTransfer.getData("card"));
+    if (!id) {
+      return props.dragged(card, "", "", props.id, "leftDeck");
+    }
+    props.dragged(card, props.decks, id, props.id);
+  }
+};
+
+// change the isDown property of the card
+const toggle = (_: Event, card: DeckType) => {
+  if (props.decks.at(-1) === card) return;
+  return (card.isDown = !card.isDown);
 };
 </script>
 

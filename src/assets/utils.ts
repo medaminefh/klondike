@@ -1,7 +1,7 @@
 import { suits, symbols, ranks } from "./gameInfo.json";
 
 // Types
-type DeckType = {
+export type DeckType = {
   suit: string;
   rank: string;
   symbol: string;
@@ -14,7 +14,7 @@ interface OutType {
 }
 
 // creating the 52 cards
-export const decks = () => {
+export const decks = (): DeckType[] => {
   const arr: Array<DeckType> = [];
   ranks.map((rank) => {
     suits.map((suit) => {
