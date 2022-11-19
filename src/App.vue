@@ -22,7 +22,9 @@ const change = (_: Event, card: DeckType, left = true) => {
     return;
   } else if (!left && leftDeck.value.length !== 0) return;
   else {
-    leftDeck.value = [...rightDeck.value].map((c) => ({ ...c, isDown: true }));
+    leftDeck.value = [...rightDeck.value]
+      .reverse()
+      .map((c) => ({ ...c, isDown: true }));
     rightDeck.value = [];
   }
 };
