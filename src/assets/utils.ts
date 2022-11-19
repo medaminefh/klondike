@@ -9,7 +9,7 @@ export type DeckType = {
   color: string;
 };
 
-interface OutType {
+export interface OutType {
   [key: number]: DeckType[];
 }
 
@@ -36,7 +36,7 @@ export const shuffle = (array: DeckType[]) => {
 };
 
 // creating decks containing cards from 1 to 7
-export const InitialDecks = (d: DeckType[]) => {
+export const InitialDecks = (d: DeckType[]): OutType => {
   let i = 0;
   const output: OutType = {};
   while (i < 7) {
@@ -63,7 +63,7 @@ export const InitialDecks = (d: DeckType[]) => {
         output[i] = d.slice(21, 28);
         break;
       default:
-        return;
+        return output;
     }
 
     i++;
@@ -91,7 +91,7 @@ export const processRank = (rank: string) => {
 export const isDroppable = (
   sameSuit = false,
   cardDragged: DeckType,
-  dropTarget: DeckType
+  dropTarget: DeckType | null
 ) => {
   if (!sameSuit && dropTarget) {
     if (
@@ -110,7 +110,8 @@ export const isDroppable = (
     );
   } else {
     if (
-      processRank(dropTarget?.rank) - processRank(cardDragged.rank) === 1 &&
+      dropTarget &&
+      processRank(dropTarget.rank) - processRank(cardDragged.rank) === 1 &&
       cardDragged.color !== dropTarget?.color &&
       cardDragged.suit !== dropTarget?.suit
     ) {

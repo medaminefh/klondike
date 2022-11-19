@@ -6,7 +6,7 @@
     @drop="onDrop($event)"
   >
     <div
-      v-if="!decks.length"
+      v-if="!decks?.length"
       class="flip-card rounded-sm overflow-hidden"
     ></div>
     <div
@@ -37,14 +37,25 @@ import type { DeckType } from "@/assets/utils";
 
 interface Props {
   decks: DeckType[];
-  id: string;
-  dragged: any;
+  id: number;
 }
+
+const emit = defineEmits<{
+  (
+    e: "dragged",
+    card: DeckType,
+    droppedDeck: DeckType[],
+    draggedDeckId: number,
+    droppedDeckId: number,
+    from: boolean | string
+  ): void;
+
+  (e: "drop", evt: DragEvent, cardIndex: number, to?: string): void;
+}>();
 
 const props = withDefaults(defineProps<Props>(), {
   decks: undefined,
   id: undefined,
-  dragged: undefined,
 });
 
 const startDrag = (evt: DragEvent, card: DeckType) => {
@@ -62,15 +73,15 @@ const onDrop = (evt: DragEvent) => {
   if (evt && evt.dataTransfer) {
     const { card, id } = JSON.parse(evt.dataTransfer.getData("card"));
     if (!id) {
-      return props.dragged(card, "", "", props.id, "leftDeck");
+      return emit("dragged", card, [], NaN, props.id, "leftDeck");
     }
-    props.dragged(card, props.decks, id, props.id);
+    emit("dragged", card, props.decks, id, props.id, "");
   }
 };
 
 // change the isDown property of the card
 const toggle = (_: Event, card: DeckType) => {
-  if (props.decks.at(-1) === card) return;
+  if (props.decks[props.decks.length - 1] === card) return;
   return (card.isDown = !card.isDown);
 };
 </script>

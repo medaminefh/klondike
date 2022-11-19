@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { decks, shuffle, InitialDecks, isDroppable } from "./assets/utils";
 import Card from "./components/Card.vue";
-import type { DeckType } from "./assets/utils";
+import type { DeckType, OutType } from "./assets/utils";
 import "./index.css";
 import "./assets/base.css";
 import { onMounted, onUpdated, ref, watch } from "vue";
 
 const Decks = ref<DeckType[]>(shuffle(decks()));
-const initialDecks = ref([]);
-const foundation = ref<DeckType[] | string[]>(["", "", "", ""]);
+const initialDecks = ref<OutType>({});
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unreachable code error
+const foundation = ref<DeckType[]>(["", "", "", ""]);
 const leftDeck = ref<DeckType[]>([]);
 const rightDeck = ref<DeckType[]>([]);
 
@@ -66,36 +68,26 @@ const onDrop = (evt: DragEvent, cardIndex: number, to = "foundation") => {
           return true;
         });
       }
-    } else if (from === "fromLeftDeck" && to === "initialDeck") {
-      const { id } = JSON.parse(evt.dataTransfer.getData("card"));
-      if (isDroppable(false, card, initialDecks.value[id])) {
-        rightDeck.value = rightDeck.value.filter((c) => {
-          if (
-            c.color == card.color &&
-            c.rank == card.rank &&
-            c.symbol == card.symbol
-          )
-            return false;
-          return true;
-        });
-        initialDecks.value[id] = [...initialDecks.value[id], card];
-      }
     }
-  } else {
-    return;
-  }
+  } else return;
 };
 
 const dragged = (
   cardDragged: DeckType,
-  droppedDeck: DeckType,
+  droppedDeck: DeckType[],
   draggedDeckId = 0,
   droppedDeckId = 0,
   from: boolean | string = false
 ) => {
   if (from === "leftDeck") {
     if (
-      isDroppable(false, cardDragged, initialDecks.value[droppedDeckId].at(-1))
+      isDroppable(
+        false,
+        cardDragged,
+        initialDecks.value[droppedDeckId][
+          initialDecks.value[droppedDeckId].length - 1
+        ]
+      )
     ) {
       rightDeck.value = rightDeck.value.filter((c) => {
         if (c.rank === cardDragged.rank && c.suit === cardDragged.suit)
@@ -125,9 +117,15 @@ const dragged = (
       // Adding the Card to the Dropped Deck
       foundation.value[droppedDeckId] = cardDragged;
     }
-  } else if ((!from, droppedDeck.length)) {
+  } else if (!from && droppedDeck.length) {
     if (
-      isDroppable(false, cardDragged, initialDecks.value[droppedDeckId].at(-1))
+      isDroppable(
+        false,
+        cardDragged,
+        initialDecks.value[droppedDeckId][
+          initialDecks.value[droppedDeckId].length - 1
+        ]
+      )
     ) {
       initialDecks.value[draggedDeckId] = initialDecks.value[
         draggedDeckId
@@ -153,7 +151,7 @@ const dragged = (
 
     // If the Deck is Empty
     if (!droppedDeck.length) {
-      if (isDroppable(true, cardDragged, "")) {
+      if (isDroppable(true, cardDragged, null)) {
         initialDecks.value[draggedDeckId] = initialDecks.value[
           draggedDeckId
         ].filter((card) => {
@@ -174,7 +172,9 @@ const dragged = (
         isDroppable(
           false,
           cardDragged,
-          initialDecks.value[droppedDeckId].at(-1)
+          initialDecks.value[droppedDeckId][
+            initialDecks.value[droppedDeckId].length
+          ]
         )
       ) {
         // Deleting the dragged card from the deck #TODO
@@ -210,7 +210,7 @@ onMounted(() => {
   // When the Component is already mounted, Show every first card in the decks
   initialDecks.value = InitialDecks(Decks.value);
   for (let i in initialDecks.value) {
-    initialDecks.value[i].at(-1).isDown = false;
+    initialDecks.value[i][initialDecks.value[i].length - 1].isDown = false;
   }
 });
 
@@ -218,7 +218,7 @@ onUpdated(() => {
   // When there is an update, make sure to update the cards status
   for (let i in initialDecks.value) {
     if (initialDecks.value[i].length)
-      initialDecks.value[i].at(-1).isDown = false;
+      initialDecks.value[i][initialDecks.value[i].length - 1].isDown = false;
   }
 });
 </script>
@@ -297,8 +297,7 @@ onUpdated(() => {
         :key="index"
         :decks="deck"
         :id="index"
-        :drop="onDrop"
-        :dragged="dragged"
+        @dragged="dragged"
       />
     </div>
   </div>
