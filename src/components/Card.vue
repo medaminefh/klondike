@@ -1,37 +1,3 @@
-<template>
-  <div
-    class="m-5 card-container"
-    @dragover.prevent
-    @dragenter.prevent
-    @drop="onDrop($event)"
-  >
-    <div
-      v-if="!decks?.length"
-      class="flip-card rounded-sm overflow-hidden"
-    ></div>
-    <div
-      v-else
-      v-for="(card, index) in decks"
-      :key="index"
-      @click="toggle($event, card)"
-      @dragstart="startDrag($event, card)"
-      class="flip-card rounded-sm overflow-hidden"
-      :draggable="!card.isDown ? true : false"
-    >
-      <div class="flip-card-inner">
-        <div
-          v-if="!card.isDown"
-          class="flip-card-front card"
-          :class="[card.suit]"
-        >
-          {{ card.rank }} {{ card.symbol }}
-        </div>
-        <div v-else class="flip-card-back"></div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import type { DeckType } from "@/assets/utils";
 
@@ -49,8 +15,6 @@ const emit = defineEmits<{
     droppedDeckId: number,
     from: boolean | string
   ): void;
-
-  (e: "drop", evt: DragEvent, cardIndex: number, to?: string): void;
 }>();
 
 const props = withDefaults(defineProps<Props>(), {
@@ -86,11 +50,36 @@ const toggle = (_: Event, card: DeckType) => {
 };
 </script>
 
-<style scoped>
-.card-container {
-  max-width: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-</style>
+<template>
+  <div
+    class="flex w-32 flex-col justify-start gap-y-1 items-center"
+    @dragover.prevent
+    @dragenter.prevent
+    @drop="onDrop($event)"
+  >
+    <div
+      v-if="!decks?.length"
+      class="flip-card rounded-sm overflow-hidden"
+    ></div>
+    <div
+      v-else
+      v-for="(card, index) in decks"
+      :key="index"
+      @click="toggle($event, card)"
+      @dragstart="startDrag($event, card)"
+      class="flip-card rounded-sm overflow-hidden"
+      :draggable="!card.isDown ? true : false"
+    >
+      <div class="flip-card-inner">
+        <div
+          v-if="!card.isDown"
+          class="flip-card-front card"
+          :class="[card.suit]"
+        >
+          {{ card.rank }} {{ card.symbol }}
+        </div>
+        <div v-else class="flip-card-back"></div>
+      </div>
+    </div>
+  </div>
+</template>

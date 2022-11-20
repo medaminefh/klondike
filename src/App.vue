@@ -226,9 +226,9 @@ onUpdated(() => {
 </script>
 
 <template>
-  <div class="flex flex-col space-y-14">
-    <div class="flex mt-4 w-screen mx-auto justify-around">
-      <div class="flex w-1/6 justify-between">
+  <div class="flex flex-col h-screen justify-center gap-y-20">
+    <div class="flex w-screen gap-x-6 justify-around">
+      <div class="flex gap-x-4 justify-between">
         <div
           v-if="leftDeck"
           @dragover.prevent
@@ -271,7 +271,7 @@ onUpdated(() => {
           </div>
         </div>
       </div>
-      <div class="flex w-1/3 justify-between">
+      <div class="flex gap-x-4 justify-between">
         <div
           @dragover.prevent
           @dragenter.prevent
@@ -293,7 +293,7 @@ onUpdated(() => {
         </div>
       </div>
     </div>
-    <div class="w-75 min-h-75 grid grid-rows-7 grid-flow-col mx-40">
+    <div class="grid grid-rows-7 grid-flow-col mx-auto gap-x-4 w-max">
       <Card
         v-for="(deck, index) in initialDecks"
         :key="index"
