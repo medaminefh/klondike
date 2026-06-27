@@ -2,7 +2,7 @@
 # abort on errors
 set -e
 # build
-npm run build
+VITE_BASE_PATH=/klondike/ npm run build
 # navigate into the build output directory
 cd dist
 # if you are deploying to a custom domain
