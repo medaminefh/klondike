@@ -1,5 +1,10 @@
 {
   "ranks": ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"],
   "suits": ["heart", "diamond", "spades", "clubs"],
-  "symbols": { "heart": "♥", "clubs": "♣", "spades": "♠", "diamond": "♦" }
+  "symbols": {
+    "heart": "\u2665",
+    "diamond": "\u2666",
+    "spades": "\u2660",
+    "clubs": "\u2663"
+  }
 }

@@ -1,12 +1,33 @@
-# First_Vue_Project
+# Klondike
 
-### Running the App
+A Vue 3 + Vite Klondike solitaire game.
 
-1. **Clone the Project**
-2. **Cd To the Project**
-3. `$ npm i`
-4. `$ npm run dev`
+## Features
 
-### Demo
+- Standard tableau, stock, waste, and four foundation piles
+- Draw 1 and Draw 3 modes
+- Undo
+- Hint
+- Auto-move to foundation
+- Move counter and timer
+- Drag/drop and click-to-move interactions
 
-<img src="./src/assets/video.gif">
+## Running the App
+
+1. Install dependencies:
+
+   ```sh
+   npm install
+   ```
+
+2. Start the dev server:
+
+   ```sh
+   npm run dev
+   ```
+
+3. Build for production:
+
+   ```sh
+   npm run build
+   ```

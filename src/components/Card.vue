@@ -1,85 +1,53 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { DeckType } from "@/assets/utils";
 
-interface Props {
-  decks: DeckType[];
-  id: number;
-}
-
-const emit = defineEmits<{
-  (
-    e: "dragged",
-    card: DeckType,
-    droppedDeck: DeckType[],
-    draggedDeckId: number,
-    droppedDeckId: number,
-    from: boolean | string
-  ): void;
-}>();
-
-const props = withDefaults(defineProps<Props>(), {
-  decks: undefined,
-  id: undefined,
-});
-
-const startDrag = (evt: DragEvent, card: DeckType) => {
-  if (evt && evt.dataTransfer) {
-    evt.dataTransfer.dropEffect = "move";
-    evt.dataTransfer.effectAllowed = "move";
-    evt.dataTransfer.setData(
-      "card",
-      JSON.stringify({ card, id: props.id, from: "fromInitialDeck" })
-    );
+const props = withDefaults(
+  defineProps<{
+    card?: DeckType | null;
+    label?: string;
+    selected?: boolean;
+    compact?: boolean;
+  }>(),
+  {
+    card: null,
+    label: "",
+    selected: false,
+    compact: false,
   }
-};
+);
 
-const onDrop = (evt: DragEvent) => {
-  if (evt && evt.dataTransfer) {
-    const { card, id } = JSON.parse(evt.dataTransfer.getData("card"));
-    if (!id) {
-      return emit("dragged", card, [], NaN, props.id, "leftDeck");
-    }
-    emit("dragged", card, props.decks, id, props.id, "");
-  }
-};
-
-// change the isDown property of the card
-const toggle = (_: Event, card: DeckType) => {
-  if (props.decks[props.decks.length - 1] === card) return;
-  return (card.isDown = !card.isDown);
-};
+const ariaLabel = computed(() =>
+  props.card
+    ? props.card.faceUp
+      ? `${props.card.rank} of ${props.card.suit}`
+      : "Face-down card"
+    : props.label || "Empty pile"
+);
 </script>
 
 <template>
   <div
-    class="flex w-32 flex-col justify-start gap-y-1 items-center"
-    @dragover.prevent
-    @dragenter.prevent
-    @drop="onDrop($event)"
+    class="playing-card"
+    :class="[
+      card ? `is-${card.suit}` : 'is-empty',
+      card && !card.faceUp ? 'is-back' : '',
+      selected ? 'is-selected' : '',
+      compact ? 'is-compact' : '',
+    ]"
+    :aria-label="ariaLabel"
   >
-    <div
-      v-if="!decks?.length"
-      class="flip-card rounded-sm overflow-hidden"
-    ></div>
-    <div
-      v-else
-      v-for="(card, index) in decks"
-      :key="index"
-      @click="toggle($event, card)"
-      @dragstart="startDrag($event, card)"
-      class="flip-card rounded-sm overflow-hidden"
-      :draggable="!card.isDown ? true : false"
-    >
-      <div class="flip-card-inner">
-        <div
-          v-if="!card.isDown"
-          class="flip-card-front card"
-          :class="[card.suit]"
-        >
-          {{ card.rank }} {{ card.symbol }}
-        </div>
-        <div v-else class="flip-card-back"></div>
-      </div>
-    </div>
+    <template v-if="card && card.faceUp">
+      <span class="card-corner">
+        <strong>{{ card.rank }}</strong>
+        <span>{{ card.symbol }}</span>
+      </span>
+      <span class="card-symbol">{{ card.symbol }}</span>
+      <span class="card-corner card-corner-bottom">
+        <strong>{{ card.rank }}</strong>
+        <span>{{ card.symbol }}</span>
+      </span>
+    </template>
+    <span v-else-if="!card" class="empty-label">{{ label }}</span>
   </div>
 </template>

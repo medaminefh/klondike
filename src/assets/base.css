@@ -1,177 +1,328 @@
-/* color palette from <https://github.com/vuejs/theme> */
 :root {
-	--vt-c-white: #ffffff;
-	--vt-c-white-soft: #f8f8f8;
-	--vt-c-white-mute: #f2f2f2;
-
-	--vt-c-black: #181818;
-	--vt-c-black-soft: #222222;
-	--vt-c-black-mute: #282828;
-
-	--vt-c-indigo: #2c3e50;
-
-	--vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
-	--vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
-	--vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
-	--vt-c-divider-dark-2: rgba(84, 84, 84, 0.48);
-
-	--vt-c-text-light-1: var(--vt-c-indigo);
-	--vt-c-text-light-2: rgba(60, 60, 60, 0.66);
-	--vt-c-text-dark-1: var(--vt-c-white);
-	--vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
-}
-
-/* semantic color variables for this project */
-:root {
-	--color-background: var(--vt-c-white);
-	--color-background-soft: var(--vt-c-white-soft);
-	--color-background-mute: var(--vt-c-white-mute);
-
-	--color-border: var(--vt-c-divider-light-2);
-	--color-border-hover: var(--vt-c-divider-light-1);
-
-	--color-heading: var(--vt-c-text-light-1);
-	--color-text: var(--vt-c-text-light-1);
-
-	--section-gap: 160px;
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--color-background: var(--vt-c-black);
-		--color-background-soft: var(--vt-c-black-soft);
-		--color-background-mute: var(--vt-c-black-mute);
-
-		--color-border: var(--vt-c-divider-dark-2);
-		--color-border-hover: var(--vt-c-divider-dark-1);
-
-		--color-heading: var(--vt-c-text-dark-1);
-		--color-text: var(--vt-c-text-dark-2);
-	}
+  --card-width: clamp(76px, 8vw, 104px);
+  --card-height: calc(var(--card-width) * 1.42);
+  --table-gap: clamp(8px, 1.4vw, 18px);
+  --felt: #176247;
+  --felt-dark: #0d3f32;
+  --felt-line: rgba(255, 255, 255, 0.15);
+  --panel: #f4efe4;
+  --panel-strong: #d9c7aa;
+  --ink: #22201d;
+  --muted: #695f51;
+  --red-card: #c72335;
+  --black-card: #171717;
 }
 
 *,
 *::before,
 *::after {
-	box-sizing: border-box;
-	margin: 0;
-	position: relative;
-	font-weight: normal;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
 }
 
 body {
-	min-height: 100vh;
-	width: 100vw;
-	margin: 0;
-	padding: 0;
-	color: var(--color-text);
-	background-image: url("https://img.freepik.com/free-vector/cute-ornament-element-poker-solitaire-club-diamond-spade-heart-element-red-white-black-gingham-patte_307151-37.jpg?");
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: cover;
-	transition: color 0.5s, background-color 0.5s;
-	line-height: 1.6;
-	font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-		Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
-		sans-serif;
-	font-size: 15px;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+  min-width: 320px;
+  margin: 0;
+  color: var(--ink);
+  background: var(--felt-dark);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.card {
-	display: inline-block;
-	position: relative;
-	background-color: #fff;
-	width: 100px;
-	height: 150px;
-	font-size: 24px;
-	border: 1px solid;
-	padding: 5px;
+button {
+  font: inherit;
 }
 
-.spades,
-.clubs {
-	color: rgba(202, 17, 17, 0.856);
+.game-shell {
+  min-height: 100vh;
+  padding: 18px;
+  background-color: var(--felt);
+  background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 1px,
+      transparent 1px
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
-.diamond,
-.heart {
-	color: rgb(30, 30, 30);
+.game-toolbar {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) auto minmax(190px, 1fr);
+  align-items: center;
+  gap: 14px;
+  max-width: 1180px;
+  margin: 0 auto 22px;
+  padding: 10px;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid rgba(48, 42, 33, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
 }
 
-.card.diamond:after {
-	content: "♦";
-	font-size: 100px;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+.game-title,
+.game-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
 }
 
-.card.heart:after {
-	content: "♥";
-	font-size: 100px;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+.game-title strong {
+  font-size: 1.05rem;
+  font-weight: 800;
 }
 
-.card.spades:after {
-	content: "♠";
-	font-size: 100px;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+.game-title span,
+.game-stats span {
+  color: var(--muted);
+  font-weight: 700;
 }
 
-.card.clubs:after {
-	content: "♣";
-	font-size: 100px;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+.game-stats {
+  justify-content: flex-end;
 }
 
-/* This container is needed to position the front and back side */
-.flip-card-inner {
-	cursor: pointer;
-	position: relative;
-	width: 100%;
-	height: 100%;
-	transition: transform 0.8s;
+.game-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
 }
 
-.flip-card {
-	margin-top: 2px;
-	width: 100px;
-	height: 150px;
-	user-select: none;
-	margin-top: -100%;
+.game-actions button,
+.segmented-control button {
+  min-height: 34px;
+  padding: 0 12px;
+  color: var(--ink);
+  background: #fffaf0;
+  border: 1px solid rgba(55, 48, 38, 0.26);
+  border-radius: 7px;
+  cursor: pointer;
+  font-weight: 800;
 }
 
-.flip-card:first-child {
-	margin-top: 0;
+.game-actions button:hover:not(:disabled),
+.segmented-control button.active {
+  background: var(--panel-strong);
 }
 
-/* Position the front and back side */
-.flip-card-front,
-.flip-card-back {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
+.game-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
-/* Style the back side */
-.flip-card-back {
-	background-image: url("../assets/cardDown.jpeg");
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: cover;
+.segmented-control {
+  display: inline-flex;
+  padding: 2px;
+  background: rgba(68, 55, 36, 0.12);
+  border-radius: 8px;
+}
+
+.segmented-control button {
+  border-color: transparent;
+}
+
+.game-board {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 20px;
+  background: rgba(6, 45, 34, 0.3);
+  border: 1px solid var(--felt-line);
+  border-radius: 8px;
+}
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 28px;
+}
+
+.stock-waste,
+.foundations {
+  display: flex;
+  gap: var(--table-gap);
+}
+
+.pile-slot,
+.pile-button {
+  position: relative;
+  display: block;
+  width: var(--card-width);
+  height: var(--card-height);
+}
+
+.pile-button {
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.pile-count {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  min-width: 24px;
+  height: 24px;
+  padding: 2px 6px;
+  color: #fff;
+  background: #6f3328;
+  border: 2px solid #f7ead6;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 900;
+  line-height: 18px;
+  text-align: center;
+}
+
+.tableau {
+  display: grid;
+  grid-template-columns: repeat(7, var(--card-width));
+  justify-content: center;
+  gap: var(--table-gap);
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.tableau-pile {
+  position: relative;
+  width: var(--card-width);
+}
+
+.tableau-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.playing-card {
+  position: relative;
+  width: var(--card-width);
+  height: var(--card-height);
+  overflow: hidden;
+  color: var(--black-card);
+  background: #fffdf6;
+  border: 1px solid rgba(15, 14, 12, 0.45);
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  user-select: none;
+}
+
+.playing-card.is-heart,
+.playing-card.is-diamond {
+  color: var(--red-card);
+}
+
+.playing-card.is-spades,
+.playing-card.is-clubs {
+  color: var(--black-card);
+}
+
+.playing-card.is-back {
+  background-image: url("./cardDown.jpeg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.playing-card.is-empty {
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.68);
+  background: rgba(0, 0, 0, 0.12);
+  border: 2px dashed rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.playing-card.is-selected {
+  outline: 3px solid #f2d36b;
+  outline-offset: 3px;
+}
+
+.card-corner {
+  position: absolute;
+  top: 7px;
+  left: 8px;
+  display: grid;
+  justify-items: center;
+  min-width: 22px;
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.card-corner strong {
+  font-weight: 900;
+}
+
+.card-corner-bottom {
+  top: auto;
+  right: 8px;
+  bottom: 7px;
+  left: auto;
+  transform: rotate(180deg);
+}
+
+.card-symbol {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3.25rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.empty-label {
+  color: inherit;
+  font-weight: 900;
+}
+
+.is-won {
+  box-shadow: 0 0 0 4px rgba(242, 211, 107, 0.48);
+}
+
+@media (max-width: 860px) {
+  :root {
+    --card-width: clamp(68px, 12vw, 88px);
+    --table-gap: 8px;
+  }
+
+  .game-shell {
+    padding: 10px;
+  }
+
+  .game-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .game-title,
+  .game-stats {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .top-row {
+    align-items: flex-start;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+
+  .game-board {
+    padding: 12px;
+  }
 }
